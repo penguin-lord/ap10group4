@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Presentation</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            background-image: linear-gradient(to left, aqua, dodgerblue, cyan, blue, );
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            flex-wrap: wrap;
         }
 
         .image-gallery {
@@ -42,41 +42,64 @@
             z-index: 9999;
             left: 0;
             top: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
         }
 
         .fullscreen-image {
+            max-width: 100%;
+            max-height: 100%;
             margin: auto;
             display: block;
-            width: 100%;
-            height: auto;
-            max-height: 100%;
         }
 
-        .close {
+        .close, .prev, .next {
             position: absolute;
-            top: 20px;
-            right: 40px;
+            top: 50%;
             color: white;
             font-size: 40px;
             font-weight: bold;
             cursor: pointer;
+            user-select: none;
+            padding: 0 20px;
+            transform: translateY(-50%);
+        }
+
+        .close {
+            top: 20px;
+            right: 40px;
+            font-size: 40px;
+        }
+
+        .prev {
+            left: 0;
+        }
+
+        .next {
+            right: 0;
+        }
+
+        .prev:hover, .next:hover, .close:hover {
+            color: #ccc;
         }
     </style>
 </head>
 <body>
     <div class="image-gallery">
-        <img src="image1.jpg" alt="Image 1" class="clickable-image">
-        <img src="image2.jpg" alt="Image 2" class="clickable-image">
+        <img src="assets_img/ict" alt="Image 1" class="clickable-image">
+        <img src="/assets_img/carpentry" alt="Image 2" class="clickable-image">
         <img src="image3.jpg" alt="Image 3" class="clickable-image">
         <!-- Add more images as needed -->
     </div>
 
     <div id="fullscreenModal" class="fullscreen-modal">
         <span class="close">&times;</span>
+        <span class="prev">&#10094;</span>
         <img class="fullscreen-image" id="fullscreenImage">
+        <span class="next">&#10095;</span>
     </div>
 
     <script>
@@ -84,19 +107,42 @@
         var modal = document.getElementById("fullscreenModal");
         var modalImage = document.getElementById("fullscreenImage");
         var closeBtn = document.getElementsByClassName("close")[0];
+        var prevBtn = document.getElementsByClassName("prev")[0];
+        var nextBtn = document.getElementsByClassName("next")[0];
         var images = document.getElementsByClassName("clickable-image");
+        var currentIndex;
+
+        // Function to open modal at the selected index
+        function openModal(index) {
+            currentIndex = index;
+            modal.style.display = "flex";
+            modalImage.src = images[currentIndex].src;
+        }
 
         // Loop through all images and attach click event
         for (var i = 0; i < images.length; i++) {
-            images[i].onclick = function() {
-                modal.style.display = "block";
-                modalImage.src = this.src;
-            }
+            images[i].onclick = (function(i) {
+                return function() {
+                    openModal(i);
+                }
+            })(i);
         }
 
-        // When the close button is clicked, close the modal
+        // Close the modal when the close button is clicked
         closeBtn.onclick = function() {
             modal.style.display = "none";
+        }
+
+        // Show previous image
+        prevBtn.onclick = function() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            modalImage.src = images[currentIndex].src;
+        }
+
+        // Show next image
+        nextBtn.onclick = function() {
+            currentIndex = (currentIndex + 1) % images.length;
+            modalImage.src = images[currentIndex].src;
         }
 
         // Close the modal when clicking outside of the image
